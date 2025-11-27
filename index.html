@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>مبدل حروف ↔ عدد - ساخته محمد مهدی اسحقی</title>
+  <style>
+    :root{--bg:#e6f2ff;--primary:#66ccff;--dark:#003366}
+    html,body{height:100%;margin:0;font-family: 'Tahoma', 'B Nazanin', sans-serif;background:var(--bg);direction:rtl}
+    .container{max-width:520px;margin:30px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.08)}
+    h1{font-size:18px;margin:0 0 10px;color:var(--dark)}
+    p.note{margin:6px 0 14px;color:var(--dark);font-size:13px}
+    label{display:block;margin-bottom:6px;font-size:14px;color:var(--dark)}
+    input[type=text]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #cfe9ff;font-size:15px;box-sizing:border-box}
+    .btn{display:inline-block;padding:10px 18px;border-radius:8px;border:0;background:var(--primary);color:#fff;font-weight:600;cursor:pointer;margin-top:12px}
+    .small{font-size:12px;color:#666;margin-top:8px}
+    .result{margin-top:12px}
+    .footer{margin-top:18px;text-align:center;color:#333;font-weight:700}
+    .actions{display:flex;gap:8px;margin-top:10px}
+    .btn.secondary{background:#f0f0f0;color:#333}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;display:none}
+    .hint{font-size:12px;color:#444;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>مبدل حروف ↔ عدد | ساخته شده توسط محمد مهدی اسحقی 💪</h1>
+    <p class="note">📌 نکته: روی کادر ورودی <strong>کلیک راست</strong> کنید تا متنِ کلیپ بورد پیست شود؛ همچنین می‌توانید <strong>Ctrl+V</strong> بزنید.</p>
+
+    <label for="inputText">متن یا عدد را وارد کن:</label>
+    <input id="inputText" type="text" placeholder="مثال: سلام یا 15,2,27" autocomplete="off">
+
+    <div class="actions">
+      <button id="convertBtn" class="btn">تبدیل</button>
+      <button id="pasteBtn" class="btn secondary">پیست</button>
+      <button id="clearBtn" class="btn secondary">پاک کن</button>
+    </div>
+
+    <div class="result">
+      <label for="output">نتیجه:</label>
+      <input id="output" type="text" readonly placeholder="نتیجه اینجا نمایش داده می‌شود"/>
+      <p class="small">📋 نتیجه به‌صورت خودکار به کلیپ‌بورد کپی می‌شود</p>
+    </div>
+
+    <p class="hint">اگر ورودی شامل اعداد یا ویرگول باشد: تبدیل عدد → حرف انجام می‌شود. در غیر این صورت حروف → عدد (با جداکننده‌ی ویرگول).</p>
+
+    <div class="footer">ساخته شده توسط محمد مهدی اسحقی</div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // نگاشت حروف فارسی به عدد (شامل ي عربی)
+    const letterToNumber = {
+      'ا':'1','ب':'2','پ':'3','ت':'4','ث':'5','ج':'6','چ':'7','ح':'8','خ':'9','د':'10','ذ':'11','ر':'12','ز':'13','ژ':'14',
+      'س':'15','ش':'16','ص':'17','ض':'18','ط':'19','ظ':'20','ع':'21','غ':'22','ف':'23','ق':'24','ک':'25','گ':'26','ل':'27','م':'28','ن':'29','و':'30','ه':'31','ی':'32','ي':'32',' ':'33'
+    };
+
+    // معکوس
+    const numberToLetter = {};
+    Object.keys(letterToNumber).forEach(k => { numberToLetter[letterToNumber[k]] = k; });
+
+    const input = document.getElementById('inputText');
+    const output = document.getElementById('output');
+    const btn = document.getElementById('convertBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const toast = document.getElementById('toast');
+
+    function showToast(text){
+      toast.textContent = text;
+      toast.style.display = 'block';
+      setTimeout(()=>toast.style.display='none',1500);
+    }
+
+    async function copyToClipboard(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        showToast('✅ نتیجه در کلیپ‌بورد کپی شد!');
+      }catch(e){
+        // fallback
+        try{
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+          showToast('✅ نتیجه در کلیپ‌بورد کپی شد!');
+        }catch(err){
+          showToast('⚠️ کپی نشد — لطفاً دستی کپی کنید');
+        }
+      }
+    }
+
+    function convertText(){
+      const text = input.value.trim();
+      if(!text){ alert('⚠️ لطفاً چیزی بنویس!'); return; }
+
+      // اگر عدد یا ویرگول در ورودی باشد → تبدیل عدد → حرف
+      const hasDigit = /\d/.test(text);
+      const hasComma = text.indexOf(',') !== -1;
+
+      let result = '';
+      if(hasDigit || hasComma){
+        // جداسازی توسط ویرگول
+        const parts = text.split(',').map(s=>s.trim()).filter(Boolean);
+        result = parts.map(p => numberToLetter[p] || '?').join('');
+      }else{
+        // حروف → عدد (با ویرگول جداکننده)
+        result = Array.from(text).map(ch => letterToNumber[ch] || '?').join(',');
+      }
+
+      output.value = result;
+      copyToClipboard(result);
+    }
+
+    btn.addEventListener('click', convertText);
+
+    // پیست با دکمه
+    pasteBtn.addEventListener('click', async ()=>{
+      try{
+        const t = await navigator.clipboard.readText();
+        input.value = t;
+        showToast('متن پیست شد');
+      }catch(e){
+        showToast('⚠️ دسترسی به کلیپ‌بورد امکان‌پذیر نیست');
+      }
+    });
+
+    clearBtn.addEventListener('click', ()=>{ input.value=''; output.value=''; });
+
+    // پیست با Ctrl+V (رویداد paste) — معمولاً کار می‌کند
+    input.addEventListener('paste', (ev)=>{
+      // محتوای پیست توسط مرورگر وارد می‌شود، فقط نمایش تِست
+      setTimeout(()=>{/* اجازه دهید متن وارد شود */},0);
+    });
+
+    // راست‌کلیک → پیست (جایگزینی منوی پیش‌فرض)
+    input.addEventListener('contextmenu', async (ev)=>{
+      ev.preventDefault();
+      try{
+        const text = await navigator.clipboard.readText();
+        input.value = text;
+        showToast('متن پیست شد');
+      }catch(e){
+        showToast('⚠️ مرورگر اجازهٔ خواندن کلیپ‌بورد را نداد');
+      }
+      return false;
+    });
+
+    // کلید Enter برای تبدیل
+    input.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Enter') { convertText(); }
+      // Ctrl+V handled by browser
+    });
+
+    // اختیاری: اگر می‌خواهید ورودی به صورت راست‌چین و فونت مناسب باشد
+    input.style.direction = 'rtl';
+    output.style.direction = 'rtl';
+
+  </script>
+</body>
+</html>

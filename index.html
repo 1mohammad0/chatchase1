@@ -20,6 +20,8 @@
     .btn.secondary{background:#f0f0f0;color:#333}
     .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;display:none}
     .hint{font-size:12px;color:#444;margin-top:6px}
+    .contact-link{display:block;margin-top:15px;padding:10px 15px;background:#28a745;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;}
+    .contact-link:hover{background:#1f7f33;}
   </style>
 </head>
 <body>
@@ -44,22 +46,22 @@
 
     <p class="hint">اگر ورودی شامل اعداد یا ویرگول باشد: تبدیل عدد → حرف انجام می‌شود. در غیر این صورت حروف → عدد (با جداکننده‌ی ویرگول).</p>
 
+    <!-- لینک ارتباط با ما -->
+    <a href="contact.html" class="contact-link">ارتباط با ما</a>
+
     <div class="footer">ساخته شده توسط محمد مهدی اسحقی</div>
   </div>
 
   <div id="toast" class="toast"></div>
 
   <script>
-    // نگاشت حروف فارسی به عدد (شامل ي عربی)
+    // همان کد اصلی مبدل عدد ↔ حروف بدون تغییر
     const letterToNumber = {
       'ا':'1','ب':'2','پ':'3','ت':'4','ث':'5','ج':'6','چ':'7','ح':'8','خ':'9','د':'10','ذ':'11','ر':'12','ز':'13','ژ':'14',
       'س':'15','ش':'16','ص':'17','ض':'18','ط':'19','ظ':'20','ع':'21','غ':'22','ف':'23','ق':'24','ک':'25','گ':'26','ل':'27','م':'28','ن':'29','و':'30','ه':'31','ی':'32','ي':'32',' ':'33'
     };
-
-    // معکوس
     const numberToLetter = {};
     Object.keys(letterToNumber).forEach(k => { numberToLetter[letterToNumber[k]] = k; });
-
     const input = document.getElementById('inputText');
     const output = document.getElementById('output');
     const btn = document.getElementById('convertBtn');
@@ -78,7 +80,6 @@
         await navigator.clipboard.writeText(text);
         showToast('✅ نتیجه در کلیپ‌بورد کپی شد!');
       }catch(e){
-        // fallback
         try{
           const ta = document.createElement('textarea');
           ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
@@ -92,69 +93,26 @@
     function convertText(){
       const text = input.value.trim();
       if(!text){ alert('⚠️ لطفاً چیزی بنویس!'); return; }
-
-      // اگر عدد یا ویرگول در ورودی باشد → تبدیل عدد → حرف
       const hasDigit = /\d/.test(text);
       const hasComma = text.indexOf(',') !== -1;
-
       let result = '';
       if(hasDigit || hasComma){
-        // جداسازی توسط ویرگول
         const parts = text.split(',').map(s=>s.trim()).filter(Boolean);
         result = parts.map(p => numberToLetter[p] || '?').join('');
       }else{
-        // حروف → عدد (با ویرگول جداکننده)
         result = Array.from(text).map(ch => letterToNumber[ch] || '?').join(',');
       }
-
       output.value = result;
       copyToClipboard(result);
     }
 
     btn.addEventListener('click', convertText);
-
-    // پیست با دکمه
-    pasteBtn.addEventListener('click', async ()=>{
-      try{
-        const t = await navigator.clipboard.readText();
-        input.value = t;
-        showToast('متن پیست شد');
-      }catch(e){
-        showToast('⚠️ دسترسی به کلیپ‌بورد امکان‌پذیر نیست');
-      }
-    });
-
+    pasteBtn.addEventListener('click', async ()=>{ try{ input.value = await navigator.clipboard.readText(); showToast('متن پیست شد'); }catch(e){ showToast('⚠️ دسترسی به کلیپ‌بورد امکان‌پذیر نیست'); } });
     clearBtn.addEventListener('click', ()=>{ input.value=''; output.value=''; });
-
-    // پیست با Ctrl+V (رویداد paste) — معمولاً کار می‌کند
-    input.addEventListener('paste', (ev)=>{
-      // محتوای پیست توسط مرورگر وارد می‌شود، فقط نمایش تِست
-      setTimeout(()=>{/* اجازه دهید متن وارد شود */},0);
-    });
-
-    // راست‌کلیک → پیست (جایگزینی منوی پیش‌فرض)
-    input.addEventListener('contextmenu', async (ev)=>{
-      ev.preventDefault();
-      try{
-        const text = await navigator.clipboard.readText();
-        input.value = text;
-        showToast('متن پیست شد');
-      }catch(e){
-        showToast('⚠️ مرورگر اجازهٔ خواندن کلیپ‌بورد را نداد');
-      }
-      return false;
-    });
-
-    // کلید Enter برای تبدیل
-    input.addEventListener('keydown', (ev)=>{
-      if(ev.key === 'Enter') { convertText(); }
-      // Ctrl+V handled by browser
-    });
-
-    // اختیاری: اگر می‌خواهید ورودی به صورت راست‌چین و فونت مناسب باشد
-    input.style.direction = 'rtl';
-    output.style.direction = 'rtl';
-
+    input.addEventListener('contextmenu', async (ev)=>{ ev.preventDefault(); try{ input.value = await navigator.clipboard.readText(); showToast('متن پیست شد'); }catch(e){ showToast('⚠️ مرورگر اجازهٔ خواندن کلیپ‌بورد را نداد'); } return false; });
+    input.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter'){ convertText(); } });
+    input.style.direction='rtl';
+    output.style.direction='rtl';
   </script>
 </body>
 </html>

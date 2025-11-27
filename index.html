@@ -6,7 +6,7 @@
   <title>مبدل حروف ↔ عدد - ساخته محمد مهدی اسحقی</title>
   <style>
     :root{--bg:#e6f2ff;--primary:#66ccff;--dark:#003366}
-    html,body{height:100%;margin:0;font-family:'Tahoma','B Nazanin',sans-serif;background:var(--bg);direction:rtl}
+    html,body{height:100%;margin:0;font-family: 'Tahoma', 'B Nazanin', sans-serif;background:var(--bg);direction:rtl}
     .container{max-width:520px;margin:30px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.08)}
     h1{font-size:18px;margin:0 0 10px;color:var(--dark)}
     p.note{margin:6px 0 14px;color:var(--dark);font-size:13px}
@@ -15,25 +15,19 @@
     .btn{display:inline-block;padding:10px 18px;border-radius:8px;border:0;background:var(--primary);color:#fff;font-weight:600;cursor:pointer;margin-top:12px}
     .small{font-size:12px;color:#666;margin-top:8px}
     .result{margin-top:12px}
-    .footer{text-align:center;color:#333;margin-top:18px;font-weight:700}
+    .footer{margin-top:18px;text-align:center;color:#333;font-weight:700}
     .actions{display:flex;gap:8px;margin-top:10px}
     .btn.secondary{background:#f0f0f0;color:#333}
     .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;display:none}
-    .menu{text-align:center;margin-bottom:18px;}
-    .menu a{color:#003366;font-weight:bold;text-decoration:none;font-size:15px}
+    .hint{font-size:12px;color:#444;margin-top:6px}
+    .contact-link{display:block;margin-top:15px;padding:10px 15px;background:#28a745;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;}
+    .contact-link:hover{background:#1f7f33;}
   </style>
 </head>
 <body>
-
   <div class="container">
-    
-    <!-- 🔗 منوی بالای صفحه -->
-    <div class="menu">
-      <a href="contact.html">ارتباط با ما</a>
-    </div>
-
     <h1>مبدل حروف ↔ عدد | ساخته شده توسط محمد مهدی اسحقی 💪</h1>
-    <p class="note">📌 نکته: روی کادر ورودی <strong>کلیک راست</strong> کنید تا متن پیست شود.</p>
+    <p class="note">📌 نکته: روی کادر ورودی <strong>کلیک راست</strong> کنید تا متنِ کلیپ بورد پیست شود؛ همچنین می‌توانید <strong>Ctrl+V</strong> بزنید.</p>
 
     <label for="inputText">متن یا عدد را وارد کن:</label>
     <input id="inputText" type="text" placeholder="مثال: سلام یا 15,2,27" autocomplete="off">
@@ -47,59 +41,37 @@
     <div class="result">
       <label for="output">نتیجه:</label>
       <input id="output" type="text" readonly placeholder="نتیجه اینجا نمایش داده می‌شود"/>
-      <p class="small">📋 نتیجه به‌صورت خودکار کپی می‌شود</p>
+      <p class="small">📋 نتیجه به‌صورت خودکار به کلیپ‌بورد کپی می‌شود</p>
     </div>
+
+    <p class="hint">اگر ورودی شامل اعداد یا ویرگول باشد: تبدیل عدد → حرف انجام می‌شود. در غیر این صورت حروف → عدد (با جداکننده‌ی ویرگول).</p>
+
+    <!-- لینک ارتباط با ما -->
+    <a href="contact.html" class="contact-link">ارتباط با ما</a>
 
     <div class="footer">ساخته شده توسط محمد مهدی اسحقی</div>
   </div>
 
-  <!-- ⭐⭐⭐ تبلیغ یکتانت — قرار گرفته در پایین صفحه ⭐⭐⭐ -->
-  <div style="max-width:600px;margin:25px auto;text-align:center;">
-    <p style="font-size:13px;color:#444;margin-bottom:6px">— تبلیغات —</p>
-
-    <script>
-        !function(e,t,n){
-            e.yektanetAnalyticsObject=n,
-            e[n]=e[n]||function(){e[n].q.push(arguments)},
-            e[n].q=e[n].q||[];
-            var a=t.getElementsByTagName("head")[0],
-            r=new Date,
-            c="https://cdn.yektanet.com/superscript/3e02d7nV/native-no-data-44838/yn_pub.js?v="
-            +r.getFullYear().toString()+"0"+r.getMonth()+"0"+r.getDate()+"0"+r.getHours(),
-            s=t.createElement("link");
-            s.rel="preload",
-            s.as="script",
-            s.href=c,
-            a.appendChild(s);
-            var l=t.createElement("script");
-            l.async=!0,
-            l.src=c,
-            a.appendChild(l)
-        }(window,document,"yektanet");
-    </script>
-  </div>
-  <!-- ⭐⭐⭐ پایان بخش تبلیغ ⭐⭐⭐ -->
-
   <div id="toast" class="toast"></div>
 
   <script>
-    const letterToNumber={
+    // همان کد اصلی مبدل عدد ↔ حروف بدون تغییر
+    const letterToNumber = {
       'ا':'1','ب':'2','پ':'3','ت':'4','ث':'5','ج':'6','چ':'7','ح':'8','خ':'9','د':'10','ذ':'11','ر':'12','ز':'13','ژ':'14',
       'س':'15','ش':'16','ص':'17','ض':'18','ط':'19','ظ':'20','ع':'21','غ':'22','ف':'23','ق':'24','ک':'25','گ':'26','ل':'27','م':'28','ن':'29','و':'30','ه':'31','ی':'32','ي':'32',' ':'33'
     };
-    const numberToLetter={};
-    Object.keys(letterToNumber).forEach(k=>{numberToLetter[letterToNumber[k]]=k;});
-
-    const input=document.getElementById('inputText');
-    const output=document.getElementById('output');
-    const btn=document.getElementById('convertBtn');
-    const pasteBtn=document.getElementById('pasteBtn');
-    const clearBtn=document.getElementById('clearBtn');
-    const toast=document.getElementById('toast');
+    const numberToLetter = {};
+    Object.keys(letterToNumber).forEach(k => { numberToLetter[letterToNumber[k]] = k; });
+    const input = document.getElementById('inputText');
+    const output = document.getElementById('output');
+    const btn = document.getElementById('convertBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const toast = document.getElementById('toast');
 
     function showToast(text){
-      toast.textContent=text;
-      toast.style.display='block';
+      toast.textContent = text;
+      toast.style.display = 'block';
       setTimeout(()=>toast.style.display='none',1500);
     }
 
@@ -108,45 +80,39 @@
         await navigator.clipboard.writeText(text);
         showToast('✅ نتیجه در کلیپ‌بورد کپی شد!');
       }catch(e){
-        const ta=document.createElement('textarea');
-        ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
-        showToast('✅ کپی شد');
+        try{
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+          showToast('✅ نتیجه در کلیپ‌بورد کپی شد!');
+        }catch(err){
+          showToast('⚠️ کپی نشد — لطفاً دستی کپی کنید');
+        }
       }
     }
 
     function convertText(){
-      const text=input.value.trim();
-      if(!text){alert('⚠️ لطفاً چیزی بنویس!');return;}
-
-      const hasDigit=/\d/.test(text);
-      const hasComma=text.indexOf(',')!==-1;
-
-      let result='';
-      if(hasDigit||hasComma){
-        const parts=text.split(',').map(s=>s.trim()).filter(Boolean);
-        result=parts.map(p=>numberToLetter[p]||'?').join('');
+      const text = input.value.trim();
+      if(!text){ alert('⚠️ لطفاً چیزی بنویس!'); return; }
+      const hasDigit = /\d/.test(text);
+      const hasComma = text.indexOf(',') !== -1;
+      let result = '';
+      if(hasDigit || hasComma){
+        const parts = text.split(',').map(s=>s.trim()).filter(Boolean);
+        result = parts.map(p => numberToLetter[p] || '?').join('');
       }else{
-        result=Array.from(text).map(ch=>letterToNumber[ch]||'?').join(',');
+        result = Array.from(text).map(ch => letterToNumber[ch] || '?').join(',');
       }
-
-      output.value=result;
+      output.value = result;
       copyToClipboard(result);
     }
 
-    btn.addEventListener('click',convertText);
-
-    pasteBtn.addEventListener('click',async()=>{
-      try{
-        const t=await navigator.clipboard.readText();
-        input.value=t;
-        showToast('متن پیست شد');
-      }catch(e){
-        showToast('⚠️ دسترسی به کلیپ‌بورد ممکن نیست');
-      }
-    });
-
-    clearBtn.addEventListener('click',()=>{input.value='';output.value='';});
+    btn.addEventListener('click', convertText);
+    pasteBtn.addEventListener('click', async ()=>{ try{ input.value = await navigator.clipboard.readText(); showToast('متن پیست شد'); }catch(e){ showToast('⚠️ دسترسی به کلیپ‌بورد امکان‌پذیر نیست'); } });
+    clearBtn.addEventListener('click', ()=>{ input.value=''; output.value=''; });
+    input.addEventListener('contextmenu', async (ev)=>{ ev.preventDefault(); try{ input.value = await navigator.clipboard.readText(); showToast('متن پیست شد'); }catch(e){ showToast('⚠️ مرورگر اجازهٔ خواندن کلیپ‌بورد را نداد'); } return false; });
+    input.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter'){ convertText(); } });
+    input.style.direction='rtl';
+    output.style.direction='rtl';
   </script>
-
 </body>
 </html>
